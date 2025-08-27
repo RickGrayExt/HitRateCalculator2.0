@@ -31,7 +31,8 @@ app.MapPost("/runs", async (IPublishEndpoint bus, StartRequest req) =>
         req.LinesPerBatch,
         req.MaxStations,
         req.StationCapacity,
-        req.WaveSize
+        req.WaveSize,
+        req.MaxStationsOpen
     );
 
     await bus.Publish(new StartRunCommand(runId, req.DatasetPath, runParams));
@@ -49,7 +50,8 @@ record StartRequest(
     int LinesPerBatch,
     int MaxStations,
     int StationCapacity,
-    int WaveSize
+    int WaveSize,
+    int MaxStationsOpen
 );
 
 class ResultConsumer : IConsumer<HitRateCalculated>
