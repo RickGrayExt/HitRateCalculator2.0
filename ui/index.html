@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hit-Rate Orchestrator UI</title>
+<style>body{font-family:system-ui;margin:2rem}input,button{padding:.5rem;margin:.25rem}</style></head>
+<body>
+<h2>Start a Run</h2>
+<p>Data URL (CSV): <input id="dataUrl" size="60" value="http://ui/sample.csv"/></p>
+<p>
+<label><input type="checkbox" id="ptl"> Use Pick-to-Line</label>
+</p>
+<div>
+<label>Station Capacity <input type="number" id="stationCapacity" value="5"></label>
+<label>Number Of Stations <input type="number" id="numberOfStations" value="6"></label>
+<label>Wave Size <input type="number" id="waveSize" value="100"></label>
+<label>Enable Seasonality <input type="checkbox" id="seasonality" checked></label>
+</div>
+<div>
+<label>SKUs per Rack <input type="number" id="skusPerRack" value="12"></label>
+<label>Max Orders per Batch <input type="number" id="maxOrdersPerBatch" value="10"></label>
+<label>Max Stations Open <input type="number" id="maxStationsOpen" value="5"></label>
+</div>
+<button id="start">Start</button>
+<pre id="out"></pre>
+
+<h3>Sample CSV</h3>
+<p>Available at <code>/sample.csv</code> in this container.</p>
+
+<script>
+const out = document.getElementById('out');
+document.getElementById('start').onclick = async () => {
+  out.textContent = 'Starting...';
+  const body = {
+    dataUrl: document.getElementById('dataUrl').value,
+    usePickToLine: document.getElementById('ptl').checked,
+    stationCapacity: parseInt(document.getElementById('stationCapacity').value),
+    numberOfStations: parseInt(document.getElementById('numberOfStations').value),
+    waveSize: parseInt(document.getElementById('waveSize').value),
+    enableSeasonality: document.getElementById('seasonality').checked,
+    skusPerRack: parseInt(document.getElementById('skusPerRack').value),
+    maxOrdersPerBatch: parseInt(document.getElementById('maxOrdersPerBatch').value),
+    maxStationsOpen: parseInt(document.getElementById('maxStationsOpen').value)
+  };
+  const res = await fetch('/api/runs',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  if(!res.ok){ out.textContent = await res.text(); return; }
+  const start = await res.json();
+  out.textContent = 'Run started: '+ start.runId + '\nPolling for result...';
+  const id = start.runId;
+  async function poll(){
+    const r = await fetch('/api/runs/'+id);
+    const j = await r.json();
+    if(j.result){ out.textContent = JSON.stringify(j,null,2); }
+    else setTimeout(poll, 1000);
+  }
+  setTimeout(poll, 1000);
+};
+</script>
+</body></html>

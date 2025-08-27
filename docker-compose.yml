@@ -1,0 +1,75 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports: ["5672:5672", "15672:15672"]
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: src/Orchestrator.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+    ports: ["8081:8080"]
+
+  sales:
+    build:
+      context: .
+      dockerfile: src/SalesDataAnalysis.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  sku:
+    build:
+      context: .
+      dockerfile: src/SkuGrouping.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  shelf:
+    build:
+      context: .
+      dockerfile: src/ShelfLocation.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  rack:
+    build:
+      context: .
+      dockerfile: src/RackCalculation.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  batch:
+    build:
+      context: .
+      dockerfile: src/OrderBatching.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  station:
+    build:
+      context: .
+      dockerfile: src/PickingStationAllocation.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  eff:
+    build:
+      context: .
+      dockerfile: src/EfficiencyAnalysis.Service/Dockerfile
+    environment: ["Rabbit:Host=rabbitmq"]
+    depends_on: [rabbitmq]
+
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Gateway.Service/Dockerfile
+    depends_on: [orchestrator]
+    ports: ["8000:8080"]
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    depends_on: [gateway]
+    ports: ["3000:80"]
