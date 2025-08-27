@@ -10,11 +10,11 @@ public record StationsAllocated(Guid RunId, List<StationAssignment> Assignments)
 public record HitRateCalculated(Guid RunId, HitRateResult Result);
 
 public record RunParams(
-    bool UsePickToLine,
+    string UsePickToLine,
     int StationCapacity,
     int NumberOfStations,
     int WaveSize,
-    bool EnableSeasonality,
+    int EnableSeasonality,
     int SkusPerRack,
     int MaxOrdersPerBatch,
     int MaxStationsOpen
