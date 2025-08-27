@@ -1,0 +1,10 @@
+services:
+  api:
+    build:
+      context: ./src/HitRateCalculator
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data:ro
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production

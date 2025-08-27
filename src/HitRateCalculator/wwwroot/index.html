@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMR Hit-Rate Calculator</title>
+<style>body{font-family:system-ui,Segoe UI,Arial;margin:2rem}.card{max-width:860px;padding:1.5rem;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.1)}label{display:block;margin:.5rem 0 .25rem;font-weight:600}input[type=number],input[type=text]{width:200px;padding:.5rem}.row{display:flex;gap:1.5rem;flex-wrap:wrap}.muted{color:#555}button{padding:.6rem 1rem;border:0;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}.result{white-space:pre-wrap;background:#111;color:#0f0;padding:1rem;border-radius:10px;margin-top:1rem}.hr{height:1px;background:#eee;margin:1rem 0}</style>
+</head>
+<body>
+<div class="card">
+<h1>AMR Hit-Rate Calculator</h1>
+<p class="muted">Upload a CSV or provide a raw CSV URL. Then set parameters and calculate.</p>
+<form id="calcForm">
+<div class="row">
+  <div><label>CSV Upload</label><input type="file" name="file" accept=".csv"/></div>
+  <div><label>...or Data URL</label><input type="text" name="dataUrl" placeholder="https://raw.githubusercontent.com/.../file.csv" style="width:360px;"></div>
+</div>
+<div class="hr"></div>
+<div class="row">
+  <div><label>SKUs per Rack</label><input type="number" name="skusPerRack" value="12" min="1"></div>
+  <div><label>Max Orders per Batch</label><input type="number" name="maxOrdersPerBatch" value="10" min="1"></div>
+  <div><label>Max Stations Open</label><input type="number" name="maxStationsOpen" value="5" min="1"></div>
+  <div><label>Station Capacity</label><input type="number" name="stationCapacity" value="5" min="1"></div>
+  <div><label>Number of Stations</label><input type="number" name="numberOfStations" value="10" min="1"></div>
+  <div><label>Wave Size</label><input type="number" name="waveSize" value="100" min="1"></div>
+</div>
+<div style="margin-top:.75rem;">
+  <label><input type="checkbox" name="usePickToLine"> Use Pick-to-Line (unchecked = Pick-to-Order)</label>
+  <label><input type="checkbox" name="enableSeasonality" checked> Enable Seasonality</label>
+</div>
+<div style="margin-top:1rem;"><button type="submit">Calculate</button></div>
+</form>
+<div id="out" class="result" style="display:none;"></div>
+</div>
+<script>
+const form = document.getElementById('calcForm'); const out = document.getElementById('out');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(form);
+  out.style.display='block'; out.textContent='Calculating...';
+  const res = await fetch('/api/calculate',{method:'POST', body:fd});
+  if(!res.ok){ out.textContent = 'Error: '+ await res.text(); return; }
+  const json = await res.json(); out.textContent = JSON.stringify(json,null,2);
+});
+</script>
+</body></html>
